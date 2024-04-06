@@ -59,7 +59,7 @@ Maze generateMaze(int width, int height) {
         if (!neighbors.empty()) {
             Point chosen = neighbors[dis(gen) % neighbors.size()];
             stack.push_back(chosen);
-            maze[(p.y + chosen.y) / 2][(p.x + chosen.x) / 2] = Passage; // Remove wall between
+            maze[(p.y + chosen.y) / 2][(p.x + chosen.x) / 2] = Passage; 
             maze[chosen.y][chosen.x] = Passage;
         } else {
             stack.pop_back();
@@ -80,11 +80,11 @@ void printMaze(const Maze& maze) {
 
 int main() {
     int width, height;
-    cout << "Enter maze width (odd number): ";
+    cout << "Enter maze width: ";
     cin >> width;
     width = (width % 2 == 0) ? width + 1 : width;
 
-    cout << "Enter maze height (odd number): ";
+    cout << "Enter maze height: ";
     cin >> height;
     height = (height % 2 == 0) ? height + 1 : height;
 
