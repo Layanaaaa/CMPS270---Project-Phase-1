@@ -1,7 +1,11 @@
 #include <iostream>
 #include <vector>
+#include <queue>
 #include <random>
-#include <ctime>
+#include <unordered_map>
+#include <functional>
+#include <cmath>
+#include <limits>
 
 using namespace std;
 
@@ -11,12 +15,13 @@ using Maze = vector<vector<Cell>>;
 
 const vector<Point> directions{{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
 
+
 namespace std {
-    template<> struct hash<Point> {
-        size_t operator()(const Point& p) const {
-            return hash<int>()(p.x) ^ hash<int>()(p.y);
-        }
-    };
+template<> struct hash<Point> {
+    size_t operator()(const Point& p) const {
+        return hash<int>()(p.x) ^ hash<int>()(p.y);
+    }
+};
 }
 
 bool operator ==(const Point& a, const Point& b) {
@@ -28,6 +33,7 @@ Maze generateMaze(int width, int height) {
     random_device rd;
     mt19937 gen(rd());
     uniform_int_distribution<> dis(0, directions.size() - 1);
+
 
     int startX = 2 * (gen() % (width / 2)) + 1;
     int startY = 2 * (gen() % (height / 2)) + 1;
@@ -73,10 +79,14 @@ void printMaze(const Maze& maze) {
 }
 
 int main() {
-    srand(time(nullptr)); // Seed for random number generation
+    int width, height;
+    cout << "Enter maze width (odd number): ";
+    cin >> width;
+    width = (width % 2 == 0) ? width + 1 : width;
 
-    const int width = 20; // Maze width
-    const int height = 20; // Maze height
+    cout << "Enter maze height (odd number): ";
+    cin >> height;
+    height = (height % 2 == 0) ? height + 1 : height;
 
     auto maze = generateMaze(width, height);
 
