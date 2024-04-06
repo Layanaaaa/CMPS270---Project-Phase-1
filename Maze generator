@@ -1,0 +1,89 @@
+#include <iostream>
+#include <vector>
+#include <random>
+#include <ctime>
+
+using namespace std;
+
+enum Cell { Wall = '#', Passage = ' ', Start = 'S', End = 'E' };
+struct Point { int x, y; };
+using Maze = vector<vector<Cell>>;
+
+const vector<Point> directions{{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+
+namespace std {
+    template<> struct hash<Point> {
+        size_t operator()(const Point& p) const {
+            return hash<int>()(p.x) ^ hash<int>()(p.y);
+        }
+    };
+}
+
+bool operator ==(const Point& a, const Point& b) {
+    return a.x == b.x && a.y == b.y;
+}
+
+Maze generateMaze(int width, int height) {
+    Maze maze(height, vector<Cell>(width, Wall));
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_int_distribution<> dis(0, directions.size() - 1);
+
+    int startX = 2 * (gen() % (width / 2)) + 1;
+    int startY = 2 * (gen() % (height / 2)) + 1;
+    maze[startY][startX] = Passage;
+
+    vector<Point> stack{{startX, startY}};
+
+    auto withinBounds = [&](int x, int y) {
+        return x > 0 && x < width - 1 && y > 0 && y < height - 1;
+    };
+
+    while (!stack.empty()) {
+        Point p = stack.back();
+        vector<Point> neighbors;
+
+        for (const auto& d : directions) {
+            int nx = p.x + 2 * d.x, ny = p.y + 2 * d.y;
+            if (withinBounds(nx, ny) && maze[ny][nx] == Wall) {
+                neighbors.push_back({nx, ny});
+            }
+        }
+
+        if (!neighbors.empty()) {
+            Point chosen = neighbors[dis(gen) % neighbors.size()];
+            stack.push_back(chosen);
+            maze[(p.y + chosen.y) / 2][(p.x + chosen.x) / 2] = Passage; // Remove wall between
+            maze[chosen.y][chosen.x] = Passage;
+        } else {
+            stack.pop_back();
+        }
+    }
+
+    return maze;
+}
+
+void printMaze(const Maze& maze) {
+    for (const auto& row : maze) {
+        for (char cell : row) {
+            cout << cell;
+        }
+        cout << '\n';
+    }
+}
+
+int main() {
+    srand(time(nullptr)); // Seed for random number generation
+
+    const int width = 20; // Maze width
+    const int height = 20; // Maze height
+
+    auto maze = generateMaze(width, height);
+
+    maze[1][0] = Start; 
+    maze[height - 2][width - 1] = End; 
+
+    printMaze(maze);
+
+    return 0;
+}
